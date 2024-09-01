@@ -1,0 +1,6 @@
+@WebRTCService_HostAddress = http://localhost:5091
+
+GET {{WebRTCService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

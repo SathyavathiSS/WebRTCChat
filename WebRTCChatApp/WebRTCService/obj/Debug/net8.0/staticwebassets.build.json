@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "1fyjNYTxHBvXAPVHOxQlA7PQTX2Ja26rt9Zn7Q1Yg5U=",
+  "Source": "WebRTCService",
+  "BasePath": "_content/WebRTCService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
