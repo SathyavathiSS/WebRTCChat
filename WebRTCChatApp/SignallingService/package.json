@@ -1,0 +1,20 @@
+{
+  "name": "signallingservice",
+  "version": "1.0.0",
+  "description": "Signalling Microservice for WebRTC Chat App",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "simplewebrtc": "^3.0.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "author": "",
+  "license": "ISC"
+}
