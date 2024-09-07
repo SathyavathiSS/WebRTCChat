@@ -15,7 +15,7 @@ builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod());
+        builder => builder.WithOrigins("https://refactored-disco-r79rx4x5gwrfxvjr-5091.app.github.dev").AllowAnyHeader().AllowAnyMethod());
 });
 
 // Register IChatService as scoped
@@ -29,10 +29,13 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register the hub
 builder.Services.AddScoped<ChatHub>();
+
+// Add controllers
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -50,5 +53,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chatHub");
+
+// Map API routes
+app.MapControllers();
 
 app.Run();
