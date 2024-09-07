@@ -1,28 +1,41 @@
+//Hubs/ChatHub.cs
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
+using WebRTCService.Services;
 
 namespace WebRTCService.Hubs
 {
     public class ChatHub : Hub
     {
-        public async Task SendMessage(string user, string message)
+        private readonly IChatService _chatService;
+
+        public ChatHub(IChatService chatService)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+            _chatService = chatService;
+        }
+    
+
+        public async Task SendMessage(string roomId, string content)
+        {
+            if (!string.IsNullOrEmpty(content))
+            {
+                int roomIdInt;
+                if (int.TryParse(roomId, out roomIdInt))
+                {
+                    await _chatService.SendMessage(roomIdInt, content);
+                    await Clients.Group(roomId).SendAsync("ReceiveMessage", roomId, content);
+                }
+                else
+                {
+                    // Handle invalid room ID
+                    await Clients.Caller.SendAsync("Error", "Invalid room ID");
+                }
+            }
         }
 
-        public async Task SendOffer(string connectionId, string offer)
+        public async Task JoinRoom(string roomName)
         {
-            await Clients.Client(connectionId).SendAsync("ReceiveOffer", offer);
-        }
-
-        public async Task SendAnswer(string connectionId, string answer)
-        {
-            await Clients.Client(connectionId).SendAsync("ReceiveAnswer", answer);
-        }
-
-        public async Task SendIceCandidate(string connectionId, string candidate)
-        {
-            await Clients.Client(connectionId).SendAsync("ReceiveIceCandidate", candidate);
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
         }
     }
+
 }

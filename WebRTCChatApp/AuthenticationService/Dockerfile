@@ -1,27 +1,5 @@
 # # Stage 1: Build the project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-
-# # Install the SQL Server tools
-# RUN apt-get update && \
-#     ACCEPT_EULA=Y apt-get install -y mssql-tools
-
-# # Set the default command for the container
-# CMD ["/opt/mssql/bin/sqlservr"]
-
-
-# USER root
-
-# # Install curl and other necessary packages
-# RUN apt-get update && \
-#     apt-get install -y curl gnupg unixodbc-dev && \
-#     curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-#     curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-#     apt-get update && \
-#     ACCEPT_EULA=Y apt-get install -y mssql-tools
-
-# USER mssql
-
-
 WORKDIR /src
 
 # Copy the project file and restore dependencies
@@ -38,6 +16,15 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
+# Install tzdata for time zone management
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    # Set the time zone to Asia/Kolkata (UTC+5:30)
+    ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+# Copy the build output from the previous stage
 COPY --from=build /src/out .
 
+# Set the entry point for the container
 ENTRYPOINT ["dotnet", "AuthenticationService.dll"]

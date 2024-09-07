@@ -12,9 +12,10 @@ public class User
 
     public byte[]  PasswordSalt { get; set; } = Array.Empty<byte>();
 
-    public string Email { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string ProfilePicture { get; set; } = string.Empty;  // URL or path to profile picture
+    // Make these properties nullable
+    public string? Email { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? ProfilePicture { get; set; }
 }
 
