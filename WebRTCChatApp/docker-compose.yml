@@ -41,15 +41,20 @@ services:
       - "8082:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=WebRTCChatDB;User Id=sa;Password=YourStrong!Passw0rd;Trusted_Connection=False;Encrypt=False;
+      - API_URL=http://webrtc:8080/api
     depends_on:
       - db
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - "8083:80"
+  frontend:
+    build:
+      context: ./FrontEnd
+      dockerfile: Dockerfile
+    ports:
+      - "8083:80"
+    environment:
+      - API_URL=http://webrtc:8080/api
+    depends_on:
+      - webrtc
 
 volumes:
   webrtcchatapp_sqlserver_data:

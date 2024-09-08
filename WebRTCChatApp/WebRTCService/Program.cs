@@ -7,16 +7,26 @@ using WebRTCService.Services;
 using WebRTCService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSignalR();
+
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy("AllowSpecificOrigin",
+//         builder => builder.WithOrigins("https://refactored-disco-r79rx4x5gwrfxvjr-5091.app.github.dev").AllowAnyHeader().AllowAnyMethod());
+// });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("https://refactored-disco-r79rx4x5gwrfxvjr-5091.app.github.dev").AllowAnyHeader().AllowAnyMethod());
+        builder => builder.WithOrigins("https://refactored-disco-r79rx4x5gwrfxvjr-8082.app.github.dev")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod());
 });
+
 
 // Register IChatService as scoped
 builder.Services.AddScoped<IChatService, ChatService>();
@@ -46,13 +56,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapHub<ChatHub>("/chatHub");
+//app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatHub>("/ws");
 
 // Map API routes
 app.MapControllers();
