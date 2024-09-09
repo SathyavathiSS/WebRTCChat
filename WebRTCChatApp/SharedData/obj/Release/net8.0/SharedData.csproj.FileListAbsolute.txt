@@ -1,0 +1,14 @@
+/src/SharedData/bin/Release/net8.0/SharedData.deps.json
+/src/SharedData/bin/Release/net8.0/SharedData.runtimeconfig.json
+/src/SharedData/bin/Release/net8.0/SharedData.dll
+/src/SharedData/bin/Release/net8.0/SharedData.pdb
+/src/SharedData/obj/Release/net8.0/SharedData.csproj.AssemblyReference.cache
+/src/SharedData/obj/Release/net8.0/SharedData.GeneratedMSBuildEditorConfig.editorconfig
+/src/SharedData/obj/Release/net8.0/SharedData.AssemblyInfoInputs.cache
+/src/SharedData/obj/Release/net8.0/SharedData.AssemblyInfo.cs
+/src/SharedData/obj/Release/net8.0/SharedData.csproj.CoreCompileInputs.cache
+/src/SharedData/obj/Release/net8.0/SharedData.dll
+/src/SharedData/obj/Release/net8.0/refint/SharedData.dll
+/src/SharedData/obj/Release/net8.0/SharedData.pdb
+/src/SharedData/obj/Release/net8.0/SharedData.genruntimeconfig.cache
+/src/SharedData/obj/Release/net8.0/ref/SharedData.dll

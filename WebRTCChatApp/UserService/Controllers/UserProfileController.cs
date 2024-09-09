@@ -1,102 +1,108 @@
+// Controllers/UserProfileController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UserService.Data;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Authorization;
 using UserService.Models;
+using SharedData.Data;
+using SharedData.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UserService.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class UserProfileController : ControllerBase
+    [Route("api/user")]
+    public class UserController : ControllerBase
     {
-        private readonly UserDbContext _context;
+        private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserProfileController(UserDbContext context)
+        public UserController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        // GET: api/UserProfile
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserProfile>>> GetUserProfiles()
+        [Authorize]
+        [HttpGet("user-profile")]
+        public async Task<IActionResult> GetUserProfile()
         {
-            return await _context.UserProfiles.ToListAsync();
-        }
-
-        // GET: api/UserProfile/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserProfile>> GetUserProfile(int id)
-        {
-            var userProfile = await _context.UserProfiles.FindAsync(id);
-
-            if (userProfile == null)
-            {
-                return NotFound();
-            }
-
-            return userProfile;
-        }
-
-        // PUT: api/UserProfile/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserProfile(int id, UserProfile userProfile)
-        {
-            if (id != userProfile.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(userProfile).State = EntityState.Modified;
-
             try
             {
+                var username = User.FindFirst(ClaimTypes.Name)?.Value; // Use ClaimTypes.Name for username
+                if (string.IsNullOrEmpty(username))
+                {
+                    return BadRequest("Invalid username.");
+                }
+                //var user = await _context.Users.FindAsync(username);
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                // Map user entity to UserProfileDto
+                var profile = new UserProfileDto
+                {
+                    Username = user.Username,   
+                    Email = user.Email ?? string.Empty,
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
+                    ProfilePicture = user.ProfilePicture ?? string.Empty
+                };
+
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        //endpoint to update user profile
+        [Authorize]
+        [HttpPut("update-profile")]
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateProfileDto model)
+        {
+            try
+            {
+                // Use int.TryParse to safely parse the user ID
+                var username = User.FindFirst(ClaimTypes.Name)?.Value;  // Use ClaimTypes.Name for username
+                if (string.IsNullOrEmpty(username))
+                {
+                    return BadRequest("Invalid username.");
+                }
+
+                //var user = await _context.Users.FindAsync(username);
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                // Update user entity with new profile data
+                user.Email = model.Email;
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.ProfilePicture = model.ProfilePicture;
+
+                _context.Users.Update(user);
                 await _context.SaveChangesAsync();
+
+                return Ok("Profile updated successfully.");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!UserProfileExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                Console.WriteLine($"Exception: {ex.Message}");
+                return StatusCode(500, "Internal server error");
             }
-
-            return NoContent();
-        }
-
-        // POST: api/UserProfile
-        [HttpPost]
-        public async Task<ActionResult<UserProfile>> PostUserProfile(UserProfile userProfile)
-        {
-            _context.UserProfiles.Add(userProfile);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUserProfile), new { id = userProfile.Id }, userProfile);
-        }
-
-        // DELETE: api/UserProfile/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserProfile(int id)
-        {
-            var userProfile = await _context.UserProfiles.FindAsync(id);
-            if (userProfile == null)
-            {
-                return NotFound();
-            }
-
-            _context.UserProfiles.Remove(userProfile);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool UserProfileExists(int id)
-        {
-            return _context.UserProfiles.Any(e => e.Id == id);
         }
     }
 }
-

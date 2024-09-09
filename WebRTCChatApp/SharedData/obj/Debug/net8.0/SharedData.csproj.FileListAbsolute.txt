@@ -1,0 +1,15 @@
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/bin/Debug/net8.0/SharedData.deps.json
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/bin/Debug/net8.0/SharedData.runtimeconfig.json
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/bin/Debug/net8.0/SharedData.dll
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/bin/Debug/net8.0/SharedData.pdb
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.csproj.AssemblyReference.cache
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.AssemblyInfoInputs.cache
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.AssemblyInfo.cs
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.csproj.CoreCompileInputs.cache
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.sourcelink.json
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.dll
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/refint/SharedData.dll
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.pdb
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/SharedData.genruntimeconfig.cache
+/workspaces/WebRTCChat/WebRTCChatApp/SharedData/obj/Debug/net8.0/ref/SharedData.dll

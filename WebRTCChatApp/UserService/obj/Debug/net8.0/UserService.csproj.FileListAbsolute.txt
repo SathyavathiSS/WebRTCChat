@@ -145,6 +145,7 @@
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/UserService.pdb
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Azure.Core.dll
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Azure.Identity.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/BCrypt.Net-Next.dll
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Humanizer.dll
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.AspNetCore.OpenApi.dll
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
@@ -252,6 +253,8 @@
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/runtimes/win/lib/net6.0/System.Runtime.Caching.dll
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/runtimes/win/lib/net6.0/System.Windows.Extensions.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/SharedData.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/SharedData.pdb
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/obj/Debug/net8.0/UserService.csproj.AssemblyReference.cache
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/obj/Debug/net8.0/UserService.GeneratedMSBuildEditorConfig.editorconfig
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/obj/Debug/net8.0/UserService.AssemblyInfoInputs.cache
@@ -274,3 +277,10 @@
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/obj/Debug/net8.0/UserService.pdb
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/obj/Debug/net8.0/UserService.genruntimeconfig.cache
 /workspaces/WebRTCChat/WebRTCChatApp/UserService/obj/Debug/net8.0/ref/UserService.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.AspNetCore.Cryptography.Internal.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.Extensions.Identity.Core.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.Extensions.Identity.Stores.dll
+/workspaces/WebRTCChat/WebRTCChatApp/UserService/bin/Debug/net8.0/Microsoft.Extensions.Options.dll

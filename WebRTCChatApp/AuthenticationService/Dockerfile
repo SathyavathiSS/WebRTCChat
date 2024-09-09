@@ -3,14 +3,19 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy the project file and restore dependencies
-COPY AuthenticationService.csproj ./
-RUN dotnet restore
+COPY ../SharedData/SharedData.csproj ./
+COPY AuthenticationService/AuthenticationService.csproj ./AuthenticationService/
+
+# Restore dependencies for both projects
+RUN dotnet restore ./AuthenticationService/AuthenticationService.csproj
 
 # Copy the rest of the source code
-COPY . .
+COPY ../SharedData ./SharedData
+COPY AuthenticationService ./AuthenticationService
 
-# Build the project
-RUN dotnet publish -c Release -o out
+# Build and publish the AuthenticationService project
+WORKDIR /src/AuthenticationService
+RUN dotnet publish -c Release -o /app/out
 
 # Stage 2: Publish the project
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -24,7 +29,7 @@ RUN apt-get update && \
     dpkg-reconfigure --frontend noninteractive tzdata
 
 # Copy the build output from the previous stage
-COPY --from=build /src/out .
+COPY --from=build /app/out .
 
 # Set the entry point for the container
 ENTRYPOINT ["dotnet", "AuthenticationService.dll"]

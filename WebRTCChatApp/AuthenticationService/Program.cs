@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Net;
 using System.Security.Claims;
+using System.Security.AccessControl;
+using SharedData.Data;
 
 System.Net.ServicePointManager.ServerCertificateValidationCallback = CertificateValidator.GetServerCertificateValidationCallback();
 

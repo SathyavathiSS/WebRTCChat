@@ -1,4 +1,4 @@
-const API_URL = window.location.origin + '/api';
+const API_URL = 'http://webrtc:8080/api';
 console.log('API URL:', API_URL);
 
 class ChatApp {
@@ -52,7 +52,7 @@ class ChatApp {
                 return;
             }
     
-            const socketUrl = 'wss://' + window.location.host + '/ws';
+            const socketUrl = 'wss://refactored-disco-r79rx4x5gwrfxvjr-8082.app.github.dev/ws';
             console.log('Attempting to connect to WebSocket:', socketUrl);
             
             this.socket = new WebSocket(socketUrl);
