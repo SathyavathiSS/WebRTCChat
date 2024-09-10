@@ -24,7 +24,7 @@ WORKDIR /app/publish
 COPY --from=build /app/publish .
 
 # Expose the web port
-EXPOSE 8082
+EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["dotnet", "WebRTCService.dll"]

@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "API_HOST: $API_HOST"
+echo "USER_HOST: $USER_HOST"
+echo "WEBCRTC_HOST: $WEBCRTC_HOST"

@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "@microsoft/signalr": "^8.0.7"
+    "@craco/craco": "^7.1.0",
+    "@microsoft/signalr": "^8.0.7",
+    "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

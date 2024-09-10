@@ -13,6 +13,22 @@ services:
     volumes:
       - webrtcchatapp_sqlserver_data:/var/opt/mssql/data
 
+  nginx:
+    image: nginx
+    ports:
+      - "8083:8080"
+    environment:
+      - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.conf
+      - API_HOST:auth
+      - USER_HOST:user
+      - WEBCRTC_HOST:webrtc
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates/
+    depends_on:
+      - auth
+      - user
+      - webrtc
+
   auth:
     build:
       context: .
@@ -51,10 +67,10 @@ services:
 
   frontend:
     build:
-      context: ./FrontEnd
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     ports:
-      - "8083:8080"
+      - "8084:8080"
     environment:
       - API_URL=http://webrtc:8080/api
     depends_on:

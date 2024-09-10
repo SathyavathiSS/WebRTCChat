@@ -32,7 +32,7 @@ RUN apt-get update && \
 COPY --from=build /app/out .
 
 # Expose the web port
-EXPOSE 8081
+EXPOSE 8080
 
 # Set the entry point for the container
 ENTRYPOINT ["dotnet", "UserService.dll"]    
