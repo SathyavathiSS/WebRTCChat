@@ -12,15 +12,22 @@ Frontend: For the user interface.
 
 ## API List
 Register: /api/auth/register
+
 Login: /api/auth/login
+
 validate Token: api/auth/test
 
 Get user profile: /api/user/user-profile
+
 Update user profile: /api/UserProfile
 
+
 Create room: /api/chat/create-room
+
 Get rooms: /api/chat/get-rooms
+
 Send chat message: /chat/api/send-message
+
 Connect to hub: /ws
 
 ## API Documentation
