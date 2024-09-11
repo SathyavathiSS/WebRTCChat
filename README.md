@@ -2,9 +2,13 @@
 
 ## Solution Overview
 AuthenticationService: For user registration, authentication
+
 UserService: For managing user profiles
+
 SharedData: Common files shared between AuthenticationService and UserService.
+
 WebRTCService: For signaling, handling peer connections and managing chat messages and chat rooms.
+
 Frontend: For the user interface.
 
 ## Project Structure
