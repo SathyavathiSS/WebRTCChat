@@ -134,6 +134,15 @@ class ChatApp {
         }));
     }
 
+    // Send WebRTC offer
+    async sendOffer(peerId, offer) {
+        this.socket.send(JSON.stringify({
+            type: 'offer',
+            peerId: peerId,
+            offer: offer
+        }));
+    }
+
     async handleAnswer(answer, peerId) {
         const peerConnection = this.peerConnections[peerId];
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
@@ -143,6 +152,7 @@ class ChatApp {
         const peerConnection = this.peerConnections[peerId];
         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     }
+
     setupEventListeners() {
         document.getElementById('message-form').addEventListener('submit', this.sendMessage.bind(this));
         document.getElementById('create-room-button').addEventListener('click', this.createRoom.bind(this));

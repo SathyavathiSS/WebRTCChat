@@ -100,5 +100,20 @@ namespace WebRTCService.Hubs
         {
             await Clients.All.SendAsync("RefreshRoomList");
         }
+
+        public async Task SendOffer(string peerId, string offer)
+        {
+            await Clients.Client(peerId).SendAsync("ReceiveOffer", offer);
+        }
+
+        public async Task SendAnswer(string peerId, string answer)
+        {
+            await Clients.Client(peerId).SendAsync("ReceiveAnswer", answer);
+        }
+
+        public async Task SendICECandidate(string peerId, string candidate)
+        {
+            await Clients.Client(peerId).SendAsync("ReceiveICECandidate", candidate);
+        }
     }
 }
