@@ -1,6 +1,6 @@
 # WebRTCChat
 
-# Solution Overview
+## Solution Overview
 AuthenticationService: For user registration, authentication
 UserService: For managing user profiles
 SharedData: Common files shared between AuthenticationService and UserService.
