@@ -1,4 +1,4 @@
-const API_URL = 'http://webrtc:8080/api'; // Change this as per your backend URL
+const API_URL = 'http://webrtc:8080/api';
 
 class ChatApp {
     constructor() {
@@ -23,7 +23,7 @@ class ChatApp {
                 return;
             }
 
-            const socketUrl = 'wss://refactored-disco-r79rx4x5gwrfxvjr-8082.app.github.dev/ws'; // Use your actual WebSocket URL
+            const socketUrl = 'wss://refactored-disco-r79rx4x5gwrfxvjr-8082.app.github.dev/ws';
             console.log('Attempting to connect to WebSocket:', socketUrl);
 
             this.socket = new WebSocket(socketUrl);
@@ -56,6 +56,16 @@ class ChatApp {
         attemptConnection();
     }
 
+    setupMedia() {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                this.localStream = stream;
+                document.getElementById('local-video').srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error accessing media devices.', error);
+            });
+    }
     sendMessage(e) {
         e.preventDefault();
         const input = document.getElementById('message-input');
@@ -79,7 +89,60 @@ class ChatApp {
         messageElement.textContent = message;
         messageContainer.appendChild(messageElement);
     }
+    
+    async handleOffer(offer, peerId) {
+        const peerConnection = new RTCPeerConnection();
+        this.peerConnections[peerId] = peerConnection;
 
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                this.socket.send(JSON.stringify({
+                    type: 'ice-candidate',
+                    candidate: event.candidate,
+                    peerId: peerId
+                }));
+            }
+        };
+
+        peerConnection.ontrack = event => {
+            const remoteVideo = document.getElementById(`remote-video-${peerId}`);
+            if (remoteVideo) {
+                remoteVideo.srcObject = event.streams[0];
+            } else {
+                const newVideo = document.createElement('video');
+                newVideo.id = `remote-video-${peerId}`;
+                newVideo.autoplay = true;
+                newVideo.srcObject = event.streams[0];
+                document.getElementById('remote-videos').appendChild(newVideo);
+            }
+        };
+
+        offer = new RTCSessionDescription(offer);
+        await peerConnection.setRemoteDescription(offer);
+
+        this.localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, this.localStream);
+        });
+
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        this.socket.send(JSON.stringify({
+            type: 'answer',
+            answer: answer,
+            peerId: peerId
+        }));
+    }
+
+    async handleAnswer(answer, peerId) {
+        const peerConnection = this.peerConnections[peerId];
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    }
+
+    async handleNewICECandidate(candidate, peerId) {
+        const peerConnection = this.peerConnections[peerId];
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    }
     setupEventListeners() {
         document.getElementById('message-form').addEventListener('submit', this.sendMessage.bind(this));
         document.getElementById('create-room-button').addEventListener('click', this.createRoom.bind(this));
