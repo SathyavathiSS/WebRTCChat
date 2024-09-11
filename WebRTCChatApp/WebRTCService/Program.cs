@@ -13,12 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSignalR();
-
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("AllowSpecificOrigin",
-//         builder => builder.WithOrigins("https://refactored-disco-r79rx4x5gwrfxvjr-5091.app.github.dev").AllowAnyHeader().AllowAnyMethod());
-// });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -27,10 +21,9 @@ builder.Services.AddCors(options =>
                             .AllowAnyMethod());
 });
 
-
 // Register IChatService as scoped
 builder.Services.AddScoped<IChatService, ChatService>();
-
+builder.Services.AddSwaggerGen();
 // Check if the connection string exists in the configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
@@ -49,6 +42,12 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebRTCService API V1");
+    });
+    
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

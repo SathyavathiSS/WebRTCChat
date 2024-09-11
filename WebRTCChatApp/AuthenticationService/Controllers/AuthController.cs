@@ -18,6 +18,7 @@ namespace AuthenticationService.Controllers
         private readonly PasswordHasher _passwordHasher;
         private readonly JwtTokenService _jwtTokenService;
 
+        // Constructor to inject dependencies
         public AuthController(JwtTokenService jwtTokenService, ApplicationDbContext context, IConfiguration configuration)
         {
             _jwtTokenService = jwtTokenService;
@@ -26,6 +27,11 @@ namespace AuthenticationService.Controllers
             _passwordHasher = new PasswordHasher();
         }
 
+        /// <summary>
+        /// Registers a new user.
+        /// </summary>
+        /// <param name="model">User registration model containing username and password.</param>
+        /// <returns>Status 200 if successful, 400 if username already exists.</returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
@@ -51,6 +57,11 @@ namespace AuthenticationService.Controllers
             return Ok("User registered successfully.");
         }
 
+        /// <summary>
+        /// Authenticates a user and generates a JWT token.
+        /// </summary>
+        /// <param name="model">Login model containing username and password.</param>
+        /// <returns>A JWT token if successful, 401 if authentication fails.</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -83,6 +94,10 @@ namespace AuthenticationService.Controllers
             return Ok(new { Token = token });
         }
 
+        /// <summary>
+        /// A test endpoint to verify the validity of the JWT token.
+        /// </summary>
+        /// <returns>A secured message if the token is valid.</returns>
         [Authorize]
         [HttpGet("test-token")]
         public IActionResult GetSecureData()
@@ -103,82 +118,6 @@ namespace AuthenticationService.Controllers
                 Console.WriteLine($"Exception: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
-        }
-
-        // [Authorize]
-        // [HttpGet("user-profile")]
-        // public async Task<IActionResult> GetUserProfile()
-        // {
-        //     try
-        //     {
-        //         var username = User.FindFirst(ClaimTypes.Name)?.Value; // Use ClaimTypes.Name for username
-        //         if (string.IsNullOrEmpty(username))
-        //         {
-        //             return BadRequest("Invalid username.");
-        //         }
-        //         //var user = await _context.Users.FindAsync(username);
-        //         var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
-        //         if (user == null)
-        //         {
-        //             return NotFound("User not found.");
-        //         }
-
-        //         // Map user entity to UserProfileDto
-        //         var profile = new UserProfileDto
-        //         {
-        //             Username = user.Username,    
-        //             Email = user.Email,
-        //             FirstName = user.FirstName,
-        //             LastName = user.LastName,
-        //             ProfilePicture = user.ProfilePicture
-        //         };
-
-        //         return Ok(profile);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"Exception: {ex.Message}");
-        //         return StatusCode(500, "Internal server error");
-        //     }
-        // }
-
-        // //endpoint to update user profile
-        // [Authorize]
-        // [HttpPut("update-profile")]
-        // public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateProfileDto model)
-        // {
-        //     try
-        //     {
-        //         // Use int.TryParse to safely parse the user ID
-        //         var username = User.FindFirst(ClaimTypes.Name)?.Value;  // Use ClaimTypes.Name for username
-        //         if (string.IsNullOrEmpty(username))
-        //         {
-        //             return BadRequest("Invalid username.");
-        //         }
-
-        //         //var user = await _context.Users.FindAsync(username);
-        //         var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
-        //         if (user == null)
-        //         {
-        //             return NotFound("User not found.");
-        //         }
-
-        //         // Update user entity with new profile data
-        //         user.Email = model.Email;
-        //         user.FirstName = model.FirstName;
-        //         user.LastName = model.LastName;
-        //         user.ProfilePicture = model.ProfilePicture;
-
-        //         _context.Users.Update(user);
-        //         await _context.SaveChangesAsync();
-
-        //         return Ok("Profile updated successfully.");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"Exception: {ex.Message}");
-        //         return StatusCode(500, "Internal server error");
-        //     }
-        // }
+        }       
     }
 }

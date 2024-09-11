@@ -18,6 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
 
 // Retrieve and validate JWT settings
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -82,6 +83,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "User API V1");
+    });
 }
 
 app.Use(async (context, next) =>
@@ -98,7 +104,7 @@ app.Use(async (context, next) =>
 });
 
 // Configure middleware
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
