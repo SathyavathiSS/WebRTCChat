@@ -1,46 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Chat</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://simplewebrtc.com/latest-v2.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Simple Example</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.simplewebrtc.com/latest.js"></script>
+  <style>
+    video {
+      width: 300px;
+      height: 200px;
+      border: 1px solid black;
+    }
+  </style>
 </head>
 <body>
-    <script>
-        // Connect to the signaling server
-        const signaling = io('http://localhost:5000'); // Replace with your signaling server URL
+  <h1>SimpleWebRTC Example</h1>
+  <div>
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+  </div>
+  <button id="callButton">Call</button>
+  <button id="hangupButton" disabled>Hang Up</button>
 
-        // Initialize SimpleWebRTC
-        const webrtc = new SimpleWebRTC({
-            localVideoEl: 'localVideo',
-            remoteVideosEl: 'remoteVideos',
-            autoRequestMedia: true,
-            url: 'http://localhost:5000', // Signaling server URL
+  <script>
+    const socket = io(); // Connect to the signaling server
+    let localStream;
+    let remoteStream;
+    let webrtc;
+
+    // Start local video stream
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        localStream = stream;
+        document.getElementById('localVideo').srcObject = stream;
+
+        // Create SimpleWebRTC instance
+        webrtc = new SimpleWebRTC({
+          localVideoEl: 'localVideo',
+          remoteVideosEl: 'remoteVideo',
+          autoRequestMedia: false,
+          url: '/' // Change this to your signaling server URL if different
         });
 
-        // Handle signaling events
-        signaling.on('signal', (data) => {
-            // Forward the signaling message to SimpleWebRTC
-            webrtc.signal(data);
-        });
-
-        // Example for creating an offer
-        webrtc.on('localStream', () => {
-            console.log('Local stream added');
-        });
-
-        // Example for receiving remote stream
+        // Handle incoming calls
         webrtc.on('videoAdded', (video, peer) => {
-            console.log('Remote stream added', video);
-            document.body.appendChild(video); // Append video element to the body or desired container
+          console.log('Video added:', peer);
+          document.getElementById('remoteVideo').srcObject = remoteStream;
         });
 
-        // When a peer is connected
-        webrtc.on('peerStreamAdded', (peer) => {
-            console.log('Peer connected:', peer);
-        });
-    </script>
+        // Call button functionality
+        document.getElementById('callButton').onclick = () => {
+          webrtc.startLocalVideo();
+          webrtc.call();
+          document.getElementById('callButton').disabled = true;
+          document.getElementById('hangupButton').disabled = false;
+        };
+
+        // Hangup button functionality
+        document.getElementById('hangupButton').onclick = () => {
+          webrtc.hangup();
+          document.getElementById('callButton').disabled = false;
+          document.getElementById('hangupButton').disabled = true;
+        };
+      })
+      .catch(err => console.error('Error accessing media devices.', err));
+  </script>
 </body>
 </html>

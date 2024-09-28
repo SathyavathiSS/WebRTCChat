@@ -31,8 +31,7 @@ namespace WebRTCService.Hubs
         {
             if (!string.IsNullOrEmpty(content))
             {
-                int roomIdInt;
-                if (int.TryParse(roomId, out roomIdInt))
+                if (int.TryParse(roomId, out int roomIdInt))
                 {
                     try
                     {
@@ -53,17 +52,17 @@ namespace WebRTCService.Hubs
             _logger.LogInformation("User {ConnectionId} joined room {RoomId}", Context.ConnectionId, roomId);
         }
 
-        public async Task SendOffer(string peerId, RTCSessionDescription offer)
+        public async Task SendOffer(string peerId, string  offer)
         {
             await Clients.Client(peerId).SendAsync("ReceiveOffer", offer);
         }
 
-        public async Task SendAnswer(string peerId, RTCSessionDescription answer)
+        public async Task SendAnswer(string peerId, string  answer)
         {
             await Clients.Client(peerId).SendAsync("ReceiveAnswer", answer);
         }
 
-        public async Task SendICECandidate(string peerId, RTCIceCandidate candidate)
+        public async Task SendICECandidate(string peerId, string  candidate)
         {
             await Clients.Client(peerId).SendAsync("ReceiveICECandidate", candidate);
         }

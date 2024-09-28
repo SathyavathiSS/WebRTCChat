@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose the signaling server port
-EXPOSE 5000
+EXPOSE 8080
 
 # Command to run the signaling server
 CMD ["node", "signaling-server.js"]

@@ -1,15 +1,44 @@
 const API_URL = 'http://webrtc:8080/api';
-const signaling = io(`http://signaling-service:5000`);
+const SIGNALR_URL = `http://signaling-service:8080/hub`;
 
 class ChatApp {
     constructor() {
         this.connection = null;
         this.roomId = '';
         this.userId = '';
-
+        this.localStream = null; // Store local media stream
+        this.webrtc = null; // Initialize SimpleWebRTC instance
         this.setupEventListeners();
         this.loadUser();
         this.connectSignalR();
+        this.initWebRTC(); // Initialize SimpleWebRTC
+    }
+
+    initWebRTC() {
+        // Initialize SimpleWebRTC
+        this.webrtc = new SimpleWebRTC({
+            // Options for SimpleWebRTC
+            localVideoEl: 'localVideo', // ID of local video element
+            remoteVideosEl: 'remoteVideos', // ID of remote video container
+            autoRequestMedia: true // Automatically request access to media
+        });
+
+        // Handle remote video added event
+        this.webrtc.on('videoAdded', (video, peer) => {
+            document.getElementById('remoteVideos').appendChild(video);
+        });
+
+        // Join a room when initialized
+        this.webrtc.on('readyToCall', () => {
+            if (this.roomId) {
+                this.webrtc.joinRoom(this.roomId);
+            }
+        });
+
+        // Send ICE candidates to the signaling server
+        this.webrtc.on('ice', (candidate) => {
+            this.connection.invoke('SendICECandidate', candidate);
+        });
     }
 
     connectSignalR() {
@@ -40,51 +69,27 @@ class ChatApp {
     }
 
     async handleOffer(offer, peerId) {
-        const peerConnection = new RTCPeerConnection();
-        this.peerConnections[peerId] = peerConnection;
-
-        peerConnection.onicecandidate = event => {
-            if (event.candidate) {
-                this.connection.send('SendICECandidate', event.candidate, peerId);
-            }
-        };
-
-        peerConnection.ontrack = event => {
-            const remoteVideo = document.getElementById(`remote-video-${peerId}`);
-            if (remoteVideo) {
-                remoteVideo.srcObject = event.streams[0];
-            } else {
-                const newVideo = document.createElement('video');
-                newVideo.id = `remote-video-${peerId}`;
-                newVideo.autoplay = true;
-                newVideo.srcObject = event.streams[0];
-                document.getElementById('remote-videos').appendChild(newVideo);
-            }
-        };
-
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-
-        this.localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, this.localStream);
+        // Use SimpleWebRTC to handle the offer
+        this.webrtc.createPeer({ id: peerId, room: this.roomId });
+        await this.webrtc.getLocalStream().getTracks().forEach(track => {
+            this.webrtc.addTrack(track, peerId);
         });
-
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-
-        this.connection.send('SendAnswer', answer, peerId);
+        
+        // Send the offer back to the signaling server
+        this.connection.invoke('SendOffer', peerId, offer);
     }
 
     async sendOffer(peerId, offer) {
-        this.connection.send('SendOffer', peerId, offer);
+        this.connection.invoke('SendOffer', peerId, offer);
     }
 
     async handleAnswer(answer, peerId) {
-        const peerConnection = this.peerConnections[peerId];
+        const peerConnection = this.webrtc.getPeer(peerId);
         await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
     }
 
     async handleNewICECandidate(candidate, peerId) {
-        const peerConnection = this.peerConnections[peerId];
+        const peerConnection = this.webrtc.getPeer(peerId);
         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     }
 
@@ -95,7 +100,7 @@ class ChatApp {
     }
 
     loadUser() {
-        this.userId = 'user123'; // Replace with actual user ID logic
+        this.userId = '2'; // Example user ID
     }
 
     async createRoom() {
@@ -172,7 +177,8 @@ class ChatApp {
         const message = input.value.trim();
 
         if (message.length > 0) {
-            this.connection.send('SendMessage', this.roomId, message);
+            // Send the message using SignalR
+            this.connection.invoke('SendMessage', this.roomId, message);
             input.value = '';
         }
     }
