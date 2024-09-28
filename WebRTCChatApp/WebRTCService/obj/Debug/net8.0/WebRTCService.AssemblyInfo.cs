@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WebRTCService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf04fdd13c748a1da35c23058209e537b71e02c3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ace6a5d6df6c07ea120cb48947d783a061eaa37c")]
 [assembly: System.Reflection.AssemblyProductAttribute("WebRTCService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WebRTCService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -3,22 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Chat App</title>
-    <link rel="stylesheet" href="style.css">
+    <title>WebRTC Chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://simplewebrtc.com/latest-v2.js"></script>
 </head>
 <body>
-    <div id="chat-container">
-        <div id="video-container">
-            <video id="localVideo" autoplay playsinline muted></video>
-            <video id="remoteVideo" autoplay playsinline></video>
-        </div>
-        <div id="chat-box">
-            <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type a message...">
-            <button id="send-button">Send</button>
-        </div>
-    </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js"></script>
+    <script>
+        // Connect to the signaling server
+        const signaling = io('http://localhost:5000'); // Replace with your signaling server URL
+
+        // Initialize SimpleWebRTC
+        const webrtc = new SimpleWebRTC({
+            localVideoEl: 'localVideo',
+            remoteVideosEl: 'remoteVideos',
+            autoRequestMedia: true,
+            url: 'http://localhost:5000', // Signaling server URL
+        });
+
+        // Handle signaling events
+        signaling.on('signal', (data) => {
+            // Forward the signaling message to SimpleWebRTC
+            webrtc.signal(data);
+        });
+
+        // Example for creating an offer
+        webrtc.on('localStream', () => {
+            console.log('Local stream added');
+        });
+
+        // Example for receiving remote stream
+        webrtc.on('videoAdded', (video, peer) => {
+            console.log('Remote stream added', video);
+            document.body.appendChild(video); // Append video element to the body or desired container
+        });
+
+        // When a peer is connected
+        webrtc.on('peerStreamAdded', (peer) => {
+            console.log('Peer connected:', peer);
+        });
+    </script>
 </body>
 </html>

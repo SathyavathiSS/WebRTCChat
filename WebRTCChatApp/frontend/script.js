@@ -1,106 +1,51 @@
 const API_URL = 'http://webrtc:8080/api';
+const signaling = io(`http://signaling-service:5000`);
 
 class ChatApp {
     constructor() {
-        this.socket = null;
+        this.connection = null;
         this.roomId = '';
         this.userId = '';
 
         this.setupEventListeners();
         this.loadUser();
-        this.connectWebSocket();
+        this.connectSignalR();
     }
 
-    connectWebSocket() {
-        const MAX_RETRIES = 5;
-        let retries = 0;
-        const initialDelay = 1000; // 1 second
-        const maxDelay = 30000; // 30 seconds
+    connectSignalR() {
+        this.connection = new signalR.HubConnectionBuilder()
+            .withUrl(SIGNALR_URL)
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
-        const attemptConnection = () => {
-            if (retries >= MAX_RETRIES) {
-                console.error('Max retries reached. Giving up.');
-                return;
-            }
+        this.connection.start()
+            .then(() => console.log('SignalR connected'))
+            .catch(err => console.error('SignalR connection error:', err));
 
-            const socketUrl = 'wss://refactored-disco-r79rx4x5gwrfxvjr-8082.app.github.dev/ws';
-            console.log('Attempting to connect to WebSocket:', socketUrl);
+        this.connection.on('ReceiveMessage', (message) => {
+            this.displayMessage(message);
+        });
 
-            this.socket = new WebSocket(socketUrl);
+        this.connection.on('ReceiveOffer', (offer, peerId) => {
+            this.handleOffer(offer, peerId);
+        });
 
-            this.socket.onopen = () => {
-                console.log('Successfully connected to WebSocket');
-            };
+        this.connection.on('ReceiveAnswer', (answer, peerId) => {
+            this.handleAnswer(answer, peerId);
+        });
 
-            this.socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                this.handleIncomingMessage(data);
-            };
-
-            this.socket.onerror = (error) => {
-                console.error('WebSocket Error:', error);
-                retries++;
-                console.log(`Retry attempt ${retries}:`);
-                const delay = Math.min(initialDelay * Math.pow(2, retries), maxDelay);
-                setTimeout(attemptConnection, delay);
-            };
-
-            this.socket.onclose = () => {
-                console.log('Disconnected from WebSocket');
-                retries++;
-                const delay = Math.min(initialDelay * Math.pow(2, retries), maxDelay);
-                setTimeout(attemptConnection, delay);
-            };
-        };
-
-        attemptConnection();
+        this.connection.on('ReceiveICECandidate', (candidate, peerId) => {
+            this.handleNewICECandidate(candidate, peerId);
+        });
     }
 
-    setupMedia() {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(stream => {
-                this.localStream = stream;
-                document.getElementById('local-video').srcObject = stream;
-            })
-            .catch(error => {
-                console.error('Error accessing media devices.', error);
-            });
-    }
-    sendMessage(e) {
-        e.preventDefault();
-        const input = document.getElementById('message-input');
-        const message = input.value.trim();
-
-        if (message.length > 0) {
-            this.socket.send(JSON.stringify({ type: 'sendMessage', roomId: this.roomId, message }));
-            input.value = '';
-        }
-    }
-
-    handleIncomingMessage(data) {
-        if (data.type === 'receiveMessage') {
-            this.displayMessage(data.message);
-        }
-    }
-
-    displayMessage(message) {
-        const messageContainer = document.getElementById('messages');
-        const messageElement = document.createElement('div');
-        messageElement.textContent = message;
-        messageContainer.appendChild(messageElement);
-    }
-    
     async handleOffer(offer, peerId) {
         const peerConnection = new RTCPeerConnection();
         this.peerConnections[peerId] = peerConnection;
 
         peerConnection.onicecandidate = event => {
             if (event.candidate) {
-                this.socket.send(JSON.stringify({
-                    type: 'ice-candidate',
-                    candidate: event.candidate,
-                    peerId: peerId
-                }));
+                this.connection.send('SendICECandidate', event.candidate, peerId);
             }
         };
 
@@ -117,8 +62,7 @@ class ChatApp {
             }
         };
 
-        offer = new RTCSessionDescription(offer);
-        await peerConnection.setRemoteDescription(offer);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
 
         this.localStream.getTracks().forEach(track => {
             peerConnection.addTrack(track, this.localStream);
@@ -127,20 +71,11 @@ class ChatApp {
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
 
-        this.socket.send(JSON.stringify({
-            type: 'answer',
-            answer: answer,
-            peerId: peerId
-        }));
+        this.connection.send('SendAnswer', answer, peerId);
     }
 
-    // Send WebRTC offer
     async sendOffer(peerId, offer) {
-        this.socket.send(JSON.stringify({
-            type: 'offer',
-            peerId: peerId,
-            offer: offer
-        }));
+        this.connection.send('SendOffer', peerId, offer);
     }
 
     async handleAnswer(answer, peerId) {
@@ -204,7 +139,7 @@ class ChatApp {
     joinRoom(roomId) {
         console.log('Attempting to join room:', roomId);
         this.roomId = roomId;
-        this.socket.send(JSON.stringify({ type: 'joinRoom', roomId }));
+        this.connection.invoke('JoinRoom', roomId);
     }
 
     handleRoomSelection() {
@@ -229,6 +164,24 @@ class ChatApp {
         } catch (error) {
             console.error('Error fetching room list:', error);
         }
+    }
+
+    sendMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+
+        if (message.length > 0) {
+            this.connection.send('SendMessage', this.roomId, message);
+            input.value = '';
+        }
+    }
+
+    displayMessage(message) {
+        const messageContainer = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messageContainer.appendChild(messageElement);
     }
 }
 

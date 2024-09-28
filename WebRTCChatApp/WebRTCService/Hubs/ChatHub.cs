@@ -1,4 +1,3 @@
-//Hubs/ChatHub.cs
 using Microsoft.AspNetCore.SignalR;
 using WebRTCService.Models;
 using WebRTCService.Services;
@@ -18,15 +17,16 @@ namespace WebRTCService.Hubs
     
         public override Task OnConnectedAsync()
         {
-            _logger.LogInformation("WebSocket connection established");
+            _logger.LogInformation("WebSocket connection established: {ConnectionId}", Context.ConnectionId);
             return base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            _logger.LogError(exception, "WebSocket connection closed");
+            _logger.LogError(exception, "WebSocket connection closed: {ConnectionId}", Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
+
         public async Task SendMessage(string roomId, string content)
         {
             if (!string.IsNullOrEmpty(content))
@@ -37,81 +37,33 @@ namespace WebRTCService.Hubs
                     try
                     {
                         await _chatService.SendMessage(roomIdInt, content);
-                        await Clients.Group(roomId).SendAsync("ReceiveMessage", roomId, content);
+                        await Clients.Group(roomId).SendAsync("ReceiveMessage", content);
                     }
                     catch (Exception ex)
                     {
-                        // Log the exception
-                        Console.WriteLine($"Error sending message: {ex.Message}");
-                        await Clients.Caller.SendAsync("Error", $"Failed to send message: {ex.Message}");
+                        _logger.LogError(ex, "Error sending message");
                     }
                 }
-                else
-                {
-                    // Handle invalid room ID
-                    await Clients.Caller.SendAsync("Error", "Invalid room ID");
-                }
             }
         }
 
-        public async Task JoinRoom(string roomName)
+        public async Task JoinRoom(string roomId)
         {
-            try
-            {
-                await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                Console.WriteLine($"Error joining room: {ex.Message}");
-                await Clients.Caller.SendAsync("Error", $"Failed to join room: {ex.Message}");
-            }
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+            _logger.LogInformation("User {ConnectionId} joined room {RoomId}", Context.ConnectionId, roomId);
         }
 
-        public async Task CreateRoom(string roomName)
-        {
-            try
-            {
-                // Create a new ChatRoom object
-                var newRoom = new ChatRoom
-                {
-                    Name = roomName
-                };
-
-                var createdRoom = await _chatService.CreateRoom(newRoom);
-                if (createdRoom != null)
-                {
-                    await BroadcastNewRoom(createdRoom);
-                    await Clients.Others.SendAsync("NewRoomCreated", createdRoom);
-                }
-                else
-                {
-                    await Clients.Caller.SendAsync("Error", "Failed to create room.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating room: {ex.Message}");
-                await Clients.Caller.SendAsync("Error", $"Failed to create room: {ex.Message}");
-            }
-        }
-
-        private async Task BroadcastNewRoom(ChatRoom newRoom)
-        {
-            await Clients.All.SendAsync("RefreshRoomList");
-        }
-
-        public async Task SendOffer(string peerId, string offer)
+        public async Task SendOffer(string peerId, RTCSessionDescription offer)
         {
             await Clients.Client(peerId).SendAsync("ReceiveOffer", offer);
         }
 
-        public async Task SendAnswer(string peerId, string answer)
+        public async Task SendAnswer(string peerId, RTCSessionDescription answer)
         {
             await Clients.Client(peerId).SendAsync("ReceiveAnswer", answer);
         }
 
-        public async Task SendICECandidate(string peerId, string candidate)
+        public async Task SendICECandidate(string peerId, RTCIceCandidate candidate)
         {
             await Clients.Client(peerId).SendAsync("ReceiveICECandidate", candidate);
         }
